@@ -65,7 +65,7 @@ jobs:
           DOCKER_BUILDKIT: 1
           ECR_REGISTRY: ${{ steps.amazon-ecr-login.outputs.registry }}
           ECR_REPOSITORY: ${{ env.SYSTEM_NAME }}-${{ env.ENV_NAME }}-${{ env.SERVICE_NAME }}-nginx
-        run:
+        run: |
           docker buildx build \
             --cache-from=$ECR_REGISTRY/$ECR_REPOSITORY:latest --build-arg BUILDKIT_INLINE_CACHE=1 \
             -f .docker/local/nginx/Dockerfile \
