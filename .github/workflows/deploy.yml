@@ -1,0 +1,88 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  AWS_REGION: ap-northeast-1
+  IMAGE_TAG: ${{ github.sha }}
+  SYSTEM_NAME: example
+  SERVICE_NAME: foobar
+
+jobs:
+  deploy:
+    name: Deploy app to AWS Fargate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure aws credentials for prod
+        if: github.ref == 'refs/heads/master'
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.ROD_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
+          role-duration-seconds: 1800
+
+      - name: Set env vars for prod
+        if: github.ref == 'refs/heads/master'
+        run: echo "ENV_NAME=prod" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v2
+
+      - run: docker-compose up -d --build nginx app mysql
+
+      - name: Cache composer
+        id: cache-composer
+        uses: actions/cache@v2
+        with:
+          path: backend/vendor
+          key: composer-v1-${{ hashFiles('composer.lock') }}
+
+      - run: docker-compose exec -T app composer install -n --prefer-dist --no-dev
+        if: ${{ !steps.cache-composer.outputs.cahce-hit }}
+
+      - name: Cache yarn
+        id: cache-yarn-ci
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: yarn-v1-${{ hashFiles('yarn.lock') }}
+
+      - run: docker-compose exec -T app yarn
+        if: ${{ !steps.cache-yarn-ci.outputs.cache-hit }}
+
+      - run: docker-compose exec -T app yarn dev
+
+      - uses: aws-actions/amazon-ecr-login@v1
+        id: amazon-ecr-login
+
+      - name: Push nginx image to ecr
+        env:
+          DOCKER_BUILDKIT: 1
+          ECR_REGISTRY: ${{ steps.amazon-ecr-login.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.SYSTEM_NAME }}-${{ env.ENV_NAME }}-${{ env.SERVICE_NAME }}-nginx
+        run:
+          docker build \
+            --cache-from=$ECR_REGISTRY/$ECR_REPOSITORY:latest --build-arg BUILDKIT_INLINE_CACHE=1 . \
+            -f .docker/local/nginx/Dockerfile \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Push php image to ecr
+        env:
+          DOCKER_BUILDKIT: 1
+          ECR_REGISTRY: ${{ steps.amazon-ecr-login.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.SYSTEM_NAME }}-${{ env.ENV_NAME }}-${{ env.SERVICE_NAME }}-php
+        run: |
+          docker-build \
+            --cache-from=$ECR_REGISTRY/$ECR_REPOSITORY:latest --build-arg BUILDKIT_INLINE_CACHE=1 . \
+            -f .docker/local/php/Dockerfile \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
