@@ -10,7 +10,6 @@ env:
   IMAGE_TAG: ${{ github.sha }}
   SYSTEM_NAME: example
   SERVICE_NAME: foobar
-  ENV_NAME: prod
 
 jobs:
   deploy:
