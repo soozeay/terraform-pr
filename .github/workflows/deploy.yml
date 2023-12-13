@@ -61,32 +61,17 @@ jobs:
         id: amazon-ecr-login
 
       - name: Push nginx image to ecr
-        env:
-          DOCKER_BUILDKIT: 1
-          ECR_REGISTRY: ${{ steps.amazon-ecr-login.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.SYSTEM_NAME }}-${{ env.ENV_NAME }}-${{ env.SERVICE_NAME }}-nginx
-        run: |
-          docker buildx build \
-            --cache-from=$ECR_REGISTRY/$ECR_REPOSITORY:latest --build-arg BUILDKIT_INLINE_CACHE=1 \
-            -f .docker/local/nginx/Dockerfile \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-            .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          file: .docker/${{ env.ENV_NAME }}/nginx/Dockerfile
+          tags: $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          context: .
 
       - name: Push php image to ecr
-        env:
-          DOCKER_BUILDKIT: 1
-          ECR_REGISTRY: ${{ steps.amazon-ecr-login.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.SYSTEM_NAME }}-${{ env.ENV_NAME }}-${{ env.SERVICE_NAME }}-php
-        run: |
-          docker buildx build \
-            --cache-from=$ECR_REGISTRY/$ECR_REPOSITORY:latest --build-arg BUILDKIT_INLINE_CACHE=1 \
-            -f .docker/local/php/Dockerfile \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-            .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          file: .docker/${{ env.ENV_NAME }}/php/Dockerfile
+          tags: $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          context: .
