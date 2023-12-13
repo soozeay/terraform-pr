@@ -23,4 +23,4 @@ RUN apk --update --no-cache add \
     xdebug && \
   rm -rf /var/cache/apk/*
 WORKDIR /app
-CMD "php-fpm"。・
+CMD "php-fpm"
