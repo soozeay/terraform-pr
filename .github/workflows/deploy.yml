@@ -62,6 +62,9 @@ jobs:
 
       - name: Push nginx image to ecr
         uses: docker/build-push-action@v4
+        env:
+          ECR_REGISTRY: ${{ steps.amazon-ecr-login.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.SYSTEM_NAME }}-${{ env.ENV_NAME }}-${{ env.SERVICE_NAME }}-nginx
         with:
           push: true
           file: .docker/${{ env.ENV_NAME }}/nginx/Dockerfile
@@ -70,6 +73,9 @@ jobs:
 
       - name: Push php image to ecr
         uses: docker/build-push-action@v4
+        env:
+          ECR_REGISTRY: ${{ steps.amazon-ecr-login.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.SYSTEM_NAME }}-${{ env.ENV_NAME }}-${{ env.SERVICE_NAME }}-php
         with:
           push: true
           file: .docker/${{ env.ENV_NAME }}/php/Dockerfile
