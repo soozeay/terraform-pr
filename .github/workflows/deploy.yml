@@ -54,7 +54,7 @@ jobs:
       - run: docker-compose exec -T app yarn
         if: ${{ !steps.cache-yarn-ci.outputs.cache-hit }}
 
-      - run: docker-compose exec -T app yarn dev
+      - run: docker-compose exec -T app yarn run build
 
       - uses: aws-actions/amazon-ecr-login@v1
         id: amazon-ecr-login
