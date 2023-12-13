@@ -1,6 +1,6 @@
 FROM php:8.1.14-fpm-alpine3.17
 EXPOSE 5173
-COPY php.ini /usr/local/etc/php/php.ini
+COPY ./php.ini /usr/local/etc/php/php.ini
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
 RUN apk --update --no-cache add \
@@ -23,4 +23,4 @@ RUN apk --update --no-cache add \
     xdebug && \
   rm -rf /var/cache/apk/*
 WORKDIR /app
-CMD "php-fpm"
+CMD "php-fpm"。・
