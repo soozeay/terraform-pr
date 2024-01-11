@@ -66,7 +66,6 @@
   "cpu": "256",
   "executionRoleArn": "{{ tfstate `data.aws_iam_role.ecs_task_execution.arn` }}",
   "family": "{{ must_env `SYSTEM_NAME` }}-{{ must_env `ENV_NAME` }}-{{ must_env `SERVICE_NAME` }}",
-  "ipcMode": "",
   "memory": "512",
   "networkMode": "awsvpc",
   "requiresCompatibilities": [
