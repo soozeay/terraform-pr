@@ -87,7 +87,7 @@
       "value": "{{ must_env `SYSTEM_NAME` }}-{{ must_env `ENV_NAME` }}-{{ must_env `SERVICE_NAME` }}"
     }
   ],
-  "taskRoleArn": "{{ tfstate `data.aws_iam_role.ecs-task.arn` }}",
+  "taskRoleArn": "{{ tfstate `data.aws_iam_role.ecs_task.arn` }}",
   "volumes": [
     {
       "host": {},
