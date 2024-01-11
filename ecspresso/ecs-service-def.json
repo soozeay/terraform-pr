@@ -18,7 +18,6 @@
   "enableECSManagedTags": false,
   "enableExecuteCommand": true,
   "healthCheckGracePeriodSeconds": 60,
-  "launchType": "",
   "loadBalancers": [
     {
       "containerName": "nginx",
