@@ -6,6 +6,9 @@
       "weight": 1
     }
   ],
+  "deploymentController": {
+    "type": "CODE_DEPLOY"
+  },
   "deploymentConfiguration": {
     "deploymentCircuitBreaker": {
       "enable": false,
