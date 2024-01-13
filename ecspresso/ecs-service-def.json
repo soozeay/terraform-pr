@@ -37,10 +37,11 @@
       ]
     }
   },
-  "platformFamily": "Linux",
+  "placementConstraints": [],
+  "placementStrategy": [],
   "platformVersion": "1.4.0",
-  "propagateTags": "NONE",
   "schedulingStrategy": "REPLICA",
+  "serviceRegistries": [],
   "tags": [
     {
       "key": "Env",
