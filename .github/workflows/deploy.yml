@@ -81,6 +81,10 @@ jobs:
           tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
           context: .
 
+      - name: Upload env file
+        run: aws s3 cp .env.ENV_NAME s3://admin-pr-$SYSTEM_NAME-$ENV_NAME-env-file/$IMAGE_TAG/.env
+        working-directory: backend
+
       - name: Download ecspresso
         uses: kayac/ecspresso@v0
         with:

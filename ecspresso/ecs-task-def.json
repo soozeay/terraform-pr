@@ -2,10 +2,23 @@
   "containerDefinitions": [
     {
       "cpu": 0,
+      "command": ["sh", "scripts/deploy.sh"],
       "dependsOn": [
         {
           "condition": "START",
           "containerName": "php"
+        }
+      ],
+      "environment": [
+        {
+          "name": "LOG_CHANNEL",
+          "value": "stack"
+        }
+      ],
+      "environmentFiles": [
+        {
+          "type": "s3",
+          "value": "{{ tfstate `data.aws_s3_bucket.env_file.arn` }}/{{ must_env `IMAGE_TAG` }}/.env"
         }
       ],
       "essential": true,
